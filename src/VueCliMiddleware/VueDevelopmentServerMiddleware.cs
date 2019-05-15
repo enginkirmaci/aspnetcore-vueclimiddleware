@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Logging;
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.SpaServices;
+using Microsoft.Extensions.Logging;
 
 namespace VueCliMiddleware
 {
@@ -18,7 +18,10 @@ namespace VueCliMiddleware
 
         public static void Attach(
             ISpaBuilder spaBuilder,
-            string scriptName, int port = 0, ScriptRunnerType runner = ScriptRunnerType.Npm, string regex = DefaultRegex)
+            string scriptName,
+            int port = 0,
+            ScriptRunnerType runner = ScriptRunnerType.Npm,
+            string regex = DefaultRegex)
         {
             var sourcePath = spaBuilder.Options.SourcePath;
             if (string.IsNullOrEmpty(sourcePath))
@@ -95,6 +98,4 @@ namespace VueCliMiddleware
             return portNumber;
         }
     }
-
-
 }

@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Original Source: https://github.com/aspnet/JavaScriptServices
 
-using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace VueCliMiddleware
 {
@@ -23,7 +23,9 @@ namespace VueCliMiddleware
         public ScriptRunnerType Runner { get; }
 
         private string GetExeName() => Runner == ScriptRunnerType.Npm ? "npm" : "yarn";
+
         private string GetArgPrefix() => Runner == ScriptRunnerType.Npm ? "run " : "";
+
         private string GetArgSuffix() => Runner == ScriptRunnerType.Npm ? "-- " : "";
 
         private static Regex AnsiColorRegex = new Regex("\x001b\\[[0-9;]*m", RegexOptions.None, TimeSpan.FromSeconds(1));
@@ -74,6 +76,9 @@ namespace VueCliMiddleware
             var process = LaunchNodeProcess(processStartInfo);
             StdOut = new EventedStreamReader(process.StandardOutput);
             StdErr = new EventedStreamReader(process.StandardError);
+
+            // Ensure node process is killed if test process termination is non-graceful.
+            ProcessTracker.Add(process);
         }
 
         public void AttachToLogger(ILogger logger)

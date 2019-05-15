@@ -1,6 +1,6 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.SpaServices;
-using System;
 
 namespace VueCliMiddleware
 {
@@ -26,7 +26,7 @@ namespace VueCliMiddleware
             this ISpaBuilder spaBuilder,
             string npmScript,
             int port = 0,
-            ScriptRunnerType runner = ScriptRunnerType.Npm, 
+            ScriptRunnerType runner = ScriptRunnerType.Npm,
             string regex = VueCliMiddleware.DefaultRegex)
         {
             if (spaBuilder == null)

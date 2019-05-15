@@ -2,20 +2,19 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // Original Source: https://github.com/aspnet/JavaScriptServices
 
+using System;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
-using System;
-using System.Threading.Tasks;
-using System.Net;
-using System.Net.Sockets;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
-
 
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("VueCliMiddleware.Tests")]
+
 namespace VueCliMiddleware
 {
     internal static class LoggerFinder
@@ -26,10 +25,15 @@ namespace VueCliMiddleware
         {
             // If the DI system gives us a logger, use it. Otherwise, set up a default one.
             var loggerFactory = appBuilder.ApplicationServices.GetService<ILoggerFactory>();
-            var logger = loggerFactory != null
-                ? loggerFactory.CreateLogger(logCategoryName)
-                : new ConsoleLogger(logCategoryName, null, false);
-            return logger;
+            if (loggerFactory == null)
+            {
+                loggerFactory = LoggerFactory.Create(builder =>
+              {
+                  builder.AddConsole();
+              });
+            }
+
+            return loggerFactory.CreateLogger(logCategoryName);
         }
     }
 
@@ -77,18 +81,22 @@ namespace VueCliMiddleware
         }
     }
 
-      /// <summary>
+    /// <summary>
     /// Wraps a <see cref="StreamReader"/> to expose an evented API, issuing notifications
     /// when the stream emits partial lines, completed lines, or finally closes.
     /// </summary>
     internal class EventedStreamReader
     {
         public delegate void OnReceivedChunkHandler(ArraySegment<char> chunk);
+
         public delegate void OnReceivedLineHandler(string line);
+
         public delegate void OnStreamClosedHandler();
 
         public event OnReceivedChunkHandler OnReceivedChunk;
+
         public event OnReceivedLineHandler OnReceivedLine;
+
         public event OnStreamClosedHandler OnStreamClosed;
 
         private readonly StreamReader _streamReader;
